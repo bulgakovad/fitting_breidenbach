@@ -4,14 +4,14 @@ import matplotlib.pyplot as plt
 from iminuit import Minuit
 from iminuit.cost import LeastSquares
 
-# ------------------ SETTINGS ------------------
+# ------------------ SETTINGS --------------------#
 W_max_fit = 2.0          # Only fit data with W <= this value
 Q2_bins_to_fit = 9       # Number of lowest Q² bins to include in fit (data will be fittted up until this bin)
 E0 = 10.6                # Beam energy in GeV
 M = 0.938                # Proton mass in GeV
 alpha = 1/137            # Fine structure constant
 R_fixed = 0.18           # R parametrization as in the Breibenbach paper
-# ------------------------------------------------
+# ------------------------------------------------#
 
 # Load data
 df = pd.read_csv("exp_data_all.dat")
@@ -30,7 +30,7 @@ q2_bins_all = sorted(df["Q2"].unique())
 q2_bins_fit = q2_bins_all[:Q2_bins_to_fit]                       # maybe we'd want to fit only some Q2, not all of them?
 df_fit = df[df["Q2"].isin(q2_bins_fit) & (df["W"] <= W_max_fit)]
 
-# Resonance parameters (fixed masses and widths as in the paper)
+# Resonance parameters (fixed masses and widths as in the paper) Maybe add more resonances? 
 resonance_params = [
     {"M": 1.226, "Gamma": 0.115},
     {"M": 1.508, "Gamma": 0.080},
@@ -89,16 +89,16 @@ def model(W, Q2, nu, theta, omega_p, x, a1, a2, a3, a4, b1, b2, b3, c1, c2, c3):
         for Mres, Gamma in [(r["M"], r["Gamma"])]
     ])
 
-    R = R1 + R_rest # resonance function as in the paper
+    R = R1 + R_rest # resonance function as in the paper (formula (2))
 
     Wt = 1.08
-    B = 1 - (b1 / (1 + (W - Wt)**2)) - (b2 / (1 + (W - Wt)**2)**2) - (b3 / (1 + (W - Wt)**2)**3)  # background function as in the paper
+    B = 1 - (b1 / (1 + (W - Wt)**2)) - (b2 / (1 + (W - Wt)**2)**2) - (b3 / (1 + (W - Wt)**2)**3)  # background function as in the paper (formula (2)). Maybe add interference of bg and resonance?
     
-    F2 = ( c1 * (1 - 1 / omega_p)**3 + c2 * (1 - 1 / omega_p)**4 + c3 * (1 - 1 / omega_p)**5 ) # scaling function as in the paper
+    F2 = ( c1 * (1 - 1 / omega_p)**3 + c2 * (1 - 1 / omega_p)**4 + c3 * (1 - 1 / omega_p)**5 ) # scaling function as in the paper (formula (3)). Maybe add another power 6?
     
-    # calculating structure functions as in the paper
-    W2 = F2 * (R + B)/nu 
-    W1 = W2 / (2 * x * (1 + R_fixed))
+    
+    W2 = F2 * (R + B)/nu    # calculating structure functions as in the paper (formula (1))
+    W1 = W2 / (2 * x * (1 + R_fixed)) # known formula. Follows fron Callan-Gross relation for dimentionless F1,F2 structure functions
     
     # calculating differential cross section as in the pdf write-up
     dsigma = ((alpha**2  * np.cos(theta / 2)**2) / (4 * E0**2 * np.sin(theta / 2)**4)) * (E0 - nu) / E0 * (W2 + 2 * np.tan(theta / 2)**2 * W1)
