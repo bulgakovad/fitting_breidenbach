@@ -53,7 +53,7 @@ def q_star(W, M, m_pi):
 q_star_0 = q_star(M1, M, m_pi)  # at resonance
 
 def V(q, R):
-    return (q*R)**2 / (1 + q**2 * R**2)
+    return q**2 / (1 + q**2 * R**2)
 
 def Gamma_R(W, Gamma1, R=R_iso):
     q = q_star(W, M, m_pi)
@@ -84,6 +84,7 @@ def model(W, Q2, nu, theta, omega_p, x, a1, a2, a3, a4, b1, b2, b3, c1, c2, c3):
 
     # Standard Breit-Wigner for R₂–R₆
     a_list = [a2, a3, a4]
+    print("a2–a4:", a2, a3, a4)
     R_rest = sum([
         a * (r["Gamma"]**2 * r["M"]**2) / ((W**2 - r["M"]**2)**2 + r["Gamma"]**2 * r["M"]**2)
         for a, r in zip(a_list, resonance_params[1:])])
